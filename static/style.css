@@ -1,0 +1,226 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 0;
+  margin: 0;
+  background-color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #333;
+}
+
+.chat-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 80vh; /* Make the chat container take up more vertical space */
+}
+
+.chat-header {
+  background-color: #4CAF50; /* Green header */
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.2em;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  padding: 12px 18px;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  max-width: 75%;
+  word-wrap: break-word;
+  line-height: 1.6;
+}
+
+.welcome-message {
+    background-color: #e2f0cb; /* Light green for welcome */
+    align-self: center;
+    text-align: center;
+    color: #4CAF50;
+    font-style: italic;
+}
+
+.user-message {
+  background-color: #dcf8c6; /* Light green for user messages */
+  align-self: flex-end;
+}
+
+.bot-message {
+  background-color: #e0e0e0; /* Light gray for bot messages */
+  align-self: flex-start;
+}
+
+.loading-message {
+    background-color: #fffacd; /* Light yellow for loading */
+    align-self: center;
+    color: #888;
+    font-style: italic;
+}
+
+.chat-input-area {
+  padding: 20px;
+  background-color: #f1f1f1;
+  border-top: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.file-upload-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.upload-button:hover {
+  background-color: #0056b3;
+}
+
+input[type="file"] {
+  display: none; /* Hide the default file input */
+}
+
+.file-name-display {
+  font-size: 0.9em;
+  color: #555;
+  flex-grow: 1; /* Allows it to take up remaining space */
+}
+
+.file-support-text {
+  font-size: 0.8em;
+  color: #888;
+  width: 100%; /* Ensures it wraps below */
+}
+
+.query-input-section {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.query-input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 1em;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.query-input:focus {
+  border-color: #4CAF50;
+}
+
+.model-select {
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 1em;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.model-select:focus {
+  border-color: #4CAF50;
+}
+
+.send-button {
+  background-color: #4CAF50; /* Green send button */
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.send-button:hover {
+  background-color: #45a049;
+  transform: translateY(-1px);
+}
+
+.send-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .chat-container {
+    width: 95%;
+    height: 90vh;
+  }
+
+  .chat-header h1 {
+    font-size: 1.3em;
+  }
+
+  .query-input-section {
+    flex-direction: column;
+  }
+
+  .model-select,
+  .send-button {
+    width: 100%;
+  }
+
+  .query-input {
+    width: calc(100% - 30px); /* Adjust for padding */
+  }
+
+  .file-upload-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .file-name-display {
+    text-align: left;
+    width: 100%;
+  }
+}
