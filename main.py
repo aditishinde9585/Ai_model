@@ -1,40 +1,86 @@
-from fastapi import FastAPI, UploadFile, Form, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from werkzeug.utils import secure_filename
 import os
 from llm_handler import get_llm_response
 
-app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+app = Flask(__name__)
+app.secret_key = "your_secret_key"
 UPLOAD_FOLDER = "uploads/"
-DEFAULT_MODEL = "qwen/qwen3-coder:free"
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
-# Ensure uploads folder exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+chat_history = []
+users = {}  # Simple in-memory store for demo purposes
 
-@app.get("/", response_class=HTMLResponse)
-async def serve_index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+@app.route("/", methods=["GET"])
+def home():
+    if not session.get("logged_in"):
+        return redirect(url_for("auth"))
+    return render_template("index.html", history=chat_history)
 
-@app.post("/api/query")
-async def query_api(query: str = Form(...), document: UploadFile = None):
-    # ✅ Ensure a valid file is uploaded
-    if document is None or document.filename == "":
-        return JSONResponse(content={"error": "No file uploaded"}, status_code=400)
+@app.route("/chat", methods=["POST"])
+def chat():
+    global chat_history
+    if not session.get("logged_in"):
+        return redirect(url_for("auth"))
 
-    # ✅ Save the file securely
-    safe_name = os.path.basename(document.filename)   # avoid any directory traversal
-    filepath = os.path.join(UPLOAD_FOLDER, safe_name)
+    file = request.files.get("document")
+    query = request.form.get("query")
+    if not file or not query:
+        return jsonify({"error": "File and query required."}), 400
 
-    try:
-        with open(filepath, "wb") as f:
-            f.write(await document.read())
-    except Exception as e:
-        return JSONResponse(content={"error": f"File save failed: {str(e)}"}, status_code=500)
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(filepath)
 
-    # ✅ Call LLM API
-    try:
-        answer = get_llm_response(query, filepath, DEFAULT_MODEL)
-        return {"query": query, "answer": answer, "file": safe_name}
-    except Exception as e:
-        return JSONResponse(content={"error": f"LLM API failed: {str(e)}"}, status_code=500)
+    response = get_llm_response(query, filepath)
+    chat_history.append({"role": "user", "content": query})
+    chat_history.append({"role": "assistant", "content": response})
+
+    return jsonify({"query": query, "response": response})
+
+@app.route("/chat", methods=["GET"])
+def redirect_to_home():
+    return redirect("/")
+
+@app.route("/clear", methods=["POST"])
+def clear_chat():
+    global chat_history
+    chat_history = []
+    return redirect("/")
+
+@app.route("/auth", methods=["GET", "POST"])
+def auth():
+    if request.method == "GET":
+        return render_template("login.html")
+
+    mode = request.form.get("mode")
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    if not email or not password:
+        return render_template("login.html", error="Email and password required.")
+
+    if mode == "signup":
+        if email in users:
+            return render_template("login.html", error="User already exists.")
+        users[email] = password
+        session["logged_in"] = True
+        return redirect(url_for("home"))
+
+    elif mode == "login":
+        if users.get(email) == password:
+            session["logged_in"] = True
+            return redirect(url_for("home"))
+        else:
+            return render_template("login.html", error="Invalid credentials.")
+
+    return render_template("login.html", error="Invalid mode.")
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.pop("logged_in", None)
+    return redirect(url_for("auth"))
+
+if __name__ == "__main__":
+    app.run(debug=True)

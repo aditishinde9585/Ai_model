@@ -1,63 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LLM Query Retrieval</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LLM Query Chat</title>
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: #1a1a1a;
-      color: #e0e0e0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
+    :root {
+      --bg-light: linear-gradient(to right, #ece9e6, #ffffff);
+      --bg-dark: #121212;
+      --text-light: #333;
+      --text-dark: #e0e0e0;
+      --card-bg-dark: #1e1e1e;
     }
-    h1 { color: #00bfff; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 0;
+      margin: 0;
+      background: var(--bg-light);
+      color: var(--text-light);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .navbar {
+      background-color: #007BFF;
+      padding: 10px 20px;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .top-buttons {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .top-buttons button {
+      background: linear-gradient(135deg, #6c757d, #343a40);
+      border: none;
+      padding: 6px 10px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s ease;
+    }
+
+    .top-buttons button:hover {
+      transform: scale(1.05);
+    }
+
+    .top-buttons .logout-btn {
+      background: linear-gradient(135deg, #dc3545, #a71d2a);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 30px;
+    }
+
     .container {
-      background: #282828;
+      flex: 2;
+      background: #ffffff;
       padding: 30px;
       border-radius: 10px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
-    label { display: block; margin: 10px 0 5px; color: #bbb; }
-    input, button {
-      width: 100%;
+
+    body.dark-mode .container {
+      background: var(--card-bg-dark);
+    }
+
+    .suggestions {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .suggestions button {
       padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #444;
-      margin-bottom: 15px;
-      font-size: 16px;
+      background: linear-gradient(135deg, #17a2b8, #138496);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s ease;
     }
-    input[type="file"], input[type="text"] { background: #333; color: #fff; }
-    button { background: #00bfff; color: black; font-weight: bold; cursor: pointer; border: none; }
-    button:hover { background: #3a86ff; color: white; }
-    p { font-size: 14px; color: #888; }
+
+    .suggestions button:hover {
+      transform: scale(1.05);
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input[type="file"], input[type="text"], input[type="email"], input[type="password"], button {
+      display: block;
+      width: 100%;
+      margin: 12px 0;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+
+    .voice-btn {
+      padding: 10px;
+      margin-left: 10px;
+      font-size: 20px;
+      background-color: #ffc107;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      line-height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s ease;
+    }
+
+    .voice-btn:hover {
+      transform: scale(1.1);
+    }
+
+    button {
+      background: linear-gradient(135deg, #007BFF, #0056b3);
+      color: #ffffff;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s, transform 0.2s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #0056b3, #003d80);
+      transform: scale(1.05);
+    }
+
+    .clear-btn {
+      background: linear-gradient(135deg, #dc3545, #a71d2a);
+    }
+
+    .clear-btn:hover {
+      background: linear-gradient(135deg, #c82333, #8e1520);
+    }
+
+    .chat-box {
+      margin-top: 25px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-left: 4px solid #007BFF;
+      border-radius: 6px;
+    }
+
+    .chat-box p {
+      margin: 6px 0;
+    }
+    .user {
+      font-weight: bold;
+    }
+
+    .assistant {
+      color: #007bff;
+      font-weight: bold;
+    }
   </style>
 </head>
+
 <body>
-
-  <div class="container">
-    <h1>LLM Query Retrieval</h1>
-
-    <form action="/api/query" method="post" enctype="multipart/form-data">
-      <label for="document">Upload Document (.pdf or .txt)</label>
-      <input type="file" id="document" name="document" accept=".pdf,.txt" required>
-
-      <label for="query">Enter Query</label>
-      <input type="text" id="query" name="query" placeholder="Ask something..." required>
-
-      <button type="submit">Send Query</button>
-    </form>
-    <p>🔹 After submitting, you'll see the raw JSON output directly from FastAPI.</p>
+  <div class="navbar">
+    <div>LLM Document Query Chat</div>
+    <div class="top-buttons">
+      <form method="GET" action="/logout" style="margin:0;">
+        <button type="submit" class="logout-btn">Logout</button>
+      </form>
+      <button onclick="toggleDarkMode()">🌙</button>
+    </div>
   </div>
 
+  {% if not session.logged_in %}
+  <!-- login/signup section -->
+  {% else %}
+
+  <div class="main-wrapper">
+    <div class="container" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+      <form method="POST" action="/chat" enctype="multipart/form-data" id="queryForm">
+        <label for="document">Upload a document (.pdf, .txt, .docx, .eml):</label>
+        <input type="file" id="document" name="document" accept=".pdf,.txt,.docx,.eml" required>
+
+        <label for="query">Enter your query:</label>
+        <div style="display: flex; align-items: center;">
+          <input type="text" id="query" name="query" placeholder="Ask something..." required style="flex: 1;">
+          <button type="button" class="voice-btn" onclick="startDictation()">🎙</button>
+        </div>
+
+        <button type="submit">Send</button>
+      </form>
+      <form method="POST" action="/clear">
+        <button class="clear-btn" type="submit">Clear Chat</button>
+      </form>
+
+      {% if history %}
+      <div class="chat-box">
+        <h3>Chat History:</h3>
+        {% for msg in history %}
+          <p class="{{ msg.role }}">{{ msg.role }}: {{ msg.content }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="suggestions">
+      <button type="button" onclick="useSuggestion('How much fund does IT cover?')">💡 How much fund?</button>
+      <button type="button" onclick="useSuggestion('List key highlights of the document.')">📌 Highlights</button>
+      <button type="button" onclick="useSuggestion('Who are the stakeholders mentioned?')">👥 Stakeholders</button>
+      <button type="button" onclick="useSuggestion('Summarize the timeline of events.')">🕒 Timeline</button>
+      <button type="button" onclick="useSuggestion('What decisions were made in this document?')">📄 Decisions</button>
+    </div>
+  </div>
+  {% endif %}
+
+  <script>
+    function startDictation() {
+      if (!('webkitSpeechRecognition' in window)) {
+        alert("Your browser doesn't support speech recognition.");
+        return;
+      }
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.onresult = function(event) {
+        document.getElementById('query').value = event.results[0][0].transcript;
+      };
+      recognition.onerror = function() {
+        alert("Speech recognition failed. Try again.");
+      };
+      recognition.start();
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      const fileInput = document.getElementById("document");
+      fileInput.files = event.dataTransfer.files;
+    }
+
+    function useSuggestion(text) {
+      document.getElementById("query").value = text;
+    }
+  </script>
 </body>
 </html>

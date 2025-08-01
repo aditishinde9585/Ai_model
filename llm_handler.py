@@ -1,80 +1,79 @@
+# llm_handler.py
 import os
 import requests
-import fitz  # from PyMuPDF
+import fitz  # PyMuPDF
+import docx
+import email
+from email import policy
+from email.parser import BytesParser
 from dotenv import load_dotenv
 
-# Load environment variables from .env (used in local dev, ignored on Render)
 load_dotenv()
-
-# Get API key from environment
 API_KEY = os.getenv("OPENROUTER_API_KEY")
-session = requests.Session()
+
+ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+HEADERS = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+DEFAULT_MODEL = "mistralai/mistral-7b-instruct"
 
 def read_file(filepath):
-    """
-    Reads content from PDF or TXT file.
-    Limits: First 5 pages of PDF or first 5000 characters of TXT.
-    """
     ext = os.path.splitext(filepath)[1].lower()
+    if ext == ".pdf":
+        return read_pdf(filepath)
+    elif ext == ".txt":
+        return read_txt(filepath)
+    elif ext == ".docx":
+        return read_docx(filepath)
+    elif ext == ".eml":
+        return read_eml(filepath)
+    return "Unsupported file type."
 
-    if ext == '.pdf':
-        text = ""
+def read_pdf(filepath):
+    text = ""
+    with fitz.open(filepath) as doc:
+        for i, page in enumerate(doc):
+            text += page.get_text()
+            if i >= 4:
+                break
+    return text[:5000]
+
+def read_txt(filepath):
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        return f.read()[:5000]
+
+def read_docx(filepath):
+    doc = docx.Document(filepath)
+    full_text = "\n".join([para.text for para in doc.paragraphs])
+    return full_text[:5000]
+
+def read_eml(filepath):
+    with open(filepath, 'rb') as f:
+        msg = BytesParser(policy=policy.default).parse(f)
         try:
-            with fitz.open(filepath) as doc:
-                for i, page in enumerate(doc):
-                    text += page.get_text()
-                    if i >= 4:  # ✅ First 5 pages only
-                        break
-        except Exception as e:
-            return f"⚠️ Error reading PDF: {str(e)}"
-        return text[:5000]
+            body = msg.get_body(preferencelist=('plain'))
+            return body.get_content()[:5000] if body else "No plain text content found in email."
+        except:
+            return "Failed to extract email content."
 
-    elif ext == '.txt':
-        try:
-            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                return f.read()[:5000]
-        except Exception as e:
-            return f"⚠️ Error reading TXT: {str(e)}"
-
-    return "⚠️ Unsupported file type. Please upload a .pdf or .txt file."
-
-
-def get_llm_response(query, filepath, model):
-    """
-    Sends query and file context to OpenRouter LLM API.
-    """
-    if not API_KEY:
-        return "⚠️ OPENROUTER_API_KEY is missing from environment variables."
-
+def get_llm_response(query, filepath, model=DEFAULT_MODEL):
     content = read_file(filepath)
-    if content.startswith("⚠️"):
-        return content  # return early if file couldn't be read
+    prompt = f"""You are a helpful assistant. Based on the following document, answer this query:
 
-    prompt = f"Answer concisely using the document:\n\n{content}\n\nQuery: {query}"
+Document:
+{content}
 
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
+Query:
+{query}"""
 
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}]
     }
-
-    try:
-        response = session.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            json=payload,
-            headers=headers,
-            timeout=30
-        )
-        data = response.json()
-        if "choices" not in data:
-            return f"⚠️ LLM API error: {data.get('error', 'Unknown error')}"
-        return data["choices"][0]["message"]["content"]
-
-    except requests.exceptions.RequestException as e:
-        return f"⚠️ Request error: {str(e)}"
-    except Exception as e:
-        return f"⚠️ Unexpected error: {str(e)}"
+    response = requests.post(ENDPOINT, headers=HEADERS, json=payload)
+    data = response.json()
+    if "choices" not in data:
+        raise ValueError(f"LLM API error: {data.get('error', 'Unknown error')}")
+    return data['choices'][0]['message']['content']

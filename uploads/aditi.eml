@@ -1,0 +1,50 @@
+From: support@abcinsurance.com
+To: customer@example.com
+Subject: Your Insurance Policy Details
+Date: Thu, 01 Aug 2025 10:00:00 +0530
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+
+<html>
+  <body>
+    <h2>Dear Customer,</h2>
+    <p>Thank you for choosing <strong>ABC Insurance Pvt. Ltd.</strong></p>
+
+    <p>Your insurance policy has been successfully issued. Below are the details:</p>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+      <tr>
+        <th>Policy Number</th>
+        <td>ABC123456789</td>
+      </tr>
+      <tr>
+        <th>Policy Holder</th>
+        <td>Mr. Rahul Sharma</td>
+      </tr>
+      <tr>
+        <th>Plan Type</th>
+        <td>Comprehensive Health Insurance</td>
+      </tr>
+      <tr>
+        <th>Coverage Amount</th>
+        <td>₹10,00,000</td>
+      </tr>
+      <tr>
+        <th>Start Date</th>
+        <td>01-Aug-2025</td>
+      </tr>
+      <tr>
+        <th>Expiry Date</th>
+        <td>31-Jul-2026</td>
+      </tr>
+    </table>
+
+    <p>To download your policy document, <a href="https://abcinsurance.com/download/ABC123456789">click here</a>.</p>
+
+    <p>For any queries, feel free to contact us at <a href="mailto:support@abcinsurance.com">support@abcinsurance.com</a> or call 1800-123-456.</p>
+
+    <br/>
+    <p>Warm regards,<br/>
+    <strong>ABC Insurance Team</strong></p>
+  </body>
+</html>

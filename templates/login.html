@@ -1,0 +1,87 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <title>LLM Chat Login / Signup</title> <style> body { font-family: 'Segoe UI', sans-serif; background-color: #111; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+.container {
+  background: #222;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 400px;
+}
+
+h2 {
+  text-align: center;
+  color: #00bfff;
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  background: #00bfff;
+  border: none;
+  color: #111;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  background: #00a4d3;
+}
+
+.toggle-link {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.toggle-link a {
+  color: #00bfff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.error {
+  color: #ff5555;
+  margin-top: 10px;
+  text-align: center;
+}
+</style> </head> <body> <div class="container"> <h2 id="formTitle">LLM Chat Login</h2>
+    <form method="POST" action="/auth">
+  <input type="hidden" name="mode" id="mode" value="login" />
+
+  <label for="email">Username</label>
+  <input type="text" id="email" name="email" required />
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" required />
+
+  <button type="submit" id="submitBtn">Login</button>
+</form>
+
+<div class="toggle-link">
+  <a onclick="toggleMode()" id="toggleLink">Don't have an account? Sign up</a>
+</div>
+
+{% if error %}
+  <div class="error">{{ error }}</div>
+{% endif %}
+</div> <script> function toggleMode() { const modeInput = document.getElementById("mode"); const submitBtn = document.getElementById("submitBtn"); const toggleLink = document.getElementById("toggleLink"); const formTitle = document.getElementById("formTitle"); if (modeInput.value === "login") { modeInput.value = "signup"; submitBtn.innerText = "Sign Up"; toggleLink.innerText = "Already have an account? Login"; formTitle.innerText = "LLM Chat Signup"; } else { modeInput.value = "login"; submitBtn.innerText = "Login"; toggleLink.innerText = "Don't have an account? Sign up"; formTitle.innerText = "LLM Chat Login"; } } </script> </body> </html>
